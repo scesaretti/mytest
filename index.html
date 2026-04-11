@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow - Task Manager</title>
+  <meta name="description" content="Task manager frontend-only accessibile con persistenza locale.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Salta al contenuto principale</a>
+
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Demo frontend-only</p>
+      <h1>TaskFlow</h1>
+      <p class="subtitle">Task manager locale con persistenza in localStorage.</p>
+    </div>
+    <div class="header-actions">
+      <button id="open-create-task" class="button button-primary" type="button">Nuovo task</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-labelledby="filters-title">
+      <section class="panel">
+        <h2 id="filters-title">Filtri</h2>
+        <form id="filters-form" novalidate>
+          <div class="field">
+            <label for="search-input">Cerca task</label>
+            <input id="search-input" name="search" type="search" placeholder="Titolo, descrizione o assegnatario">
+          </div>
+
+          <div class="field">
+            <label for="status-filter">Stato</label>
+            <select id="status-filter" name="status">
+              <option value="all">Tutti</option>
+              <option value="open">Aperti</option>
+              <option value="in-progress">In lavorazione</option>
+              <option value="completed">Completati</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="priority-filter">Priorità</label>
+            <select id="priority-filter" name="priority">
+              <option value="all">Tutte</option>
+              <option value="high">Alta</option>
+              <option value="medium">Media</option>
+              <option value="low">Bassa</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="sort-by">Ordina per</label>
+            <select id="sort-by" name="sortBy">
+              <option value="dueDateAsc">Scadenza più vicina</option>
+              <option value="dueDateDesc">Scadenza più lontana</option>
+              <option value="priorityDesc">Priorità decrescente</option>
+              <option value="titleAsc">Titolo A-Z</option>
+            </select>
+          </div>
+
+          <div class="actions-inline actions-stretch">
+            <button class="button button-primary" type="submit">Applica filtri</button>
+            <button class="button button-secondary" type="button" id="reset-filters">Reset filtri</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="stats-title">
+        <h2 id="stats-title">Riepilogo</h2>
+        <dl class="stats-list" id="stats-list">
+          <div>
+            <dt>Totale task</dt>
+            <dd id="stat-total">0</dd>
+          </div>
+          <div>
+            <dt>Aperti</dt>
+            <dd id="stat-open">0</dd>
+          </div>
+          <div>
+            <dt>In lavorazione</dt>
+            <dd id="stat-in-progress">0</dd>
+          </div>
+          <div>
+            <dt>Completati</dt>
+            <dd id="stat-completed">0</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+
+    <main id="main-content" class="content-grid single-column">
+      <section class="panel panel-large" aria-labelledby="tasks-title">
+        <div class="section-header">
+          <div>
+            <h2 id="tasks-title">Elenco task</h2>
+            <p id="results-summary" class="muted">0 task visualizzati.</p>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="tasks-table" aria-describedby="results-summary">
+            <caption class="visually-hidden">Elenco dei task con stato, priorità, assegnazione, scadenza e azioni disponibili</caption>
+            <thead>
+              <tr>
+                <th scope="col">Titolo</th>
+                <th scope="col">Stato</th>
+                <th scope="col">Priorità</th>
+                <th scope="col">Assegnato a</th>
+                <th scope="col">Scadenza</th>
+                <th scope="col">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="task-table-body"></tbody>
+          </table>
+        </div>
+
+        <div id="empty-state" class="empty-state" hidden>
+          <h3>Nessun task trovato</h3>
+          <p>Prova a modificare i filtri oppure crea un nuovo task.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="form-overlay" class="overlay" hidden></div>
+  <section id="task-form-panel" class="drawer" role="dialog" aria-modal="true" aria-labelledby="form-title" aria-hidden="true" hidden>
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Gestione task</p>
+        <h2 id="form-title">Nuovo task</h2>
+      </div>
+      <button id="close-form" class="icon-button" type="button" aria-label="Chiudi il pannello del form">×</button>
+    </div>
+
+    <form id="task-form" novalidate>
+      <input type="hidden" id="task-id" name="taskId">
+
+      <div class="field">
+        <label for="task-title">Titolo</label>
+        <input id="task-title" name="title" type="text" maxlength="80" required>
+        <p class="field-hint">Inserisci un titolo sintetico e descrittivo.</p>
+      </div>
+
+      <div class="field">
+        <label for="task-description">Descrizione</label>
+        <textarea id="task-description" name="description" rows="5"></textarea>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="task-status">Stato</label>
+          <select id="task-status" name="status" required>
+            <option value="open">Aperto</option>
+            <option value="in-progress">In lavorazione</option>
+            <option value="completed">Completato</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="task-priority">Priorità</label>
+          <select id="task-priority" name="priority" required>
+            <option value="high">Alta</option>
+            <option value="medium">Media</option>
+            <option value="low">Bassa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="task-assignee">Assegnato a</label>
+          <input id="task-assignee" name="assignee" type="text" maxlength="60">
+        </div>
+
+        <div class="field">
+          <label for="task-due-date">Data di scadenza</label>
+          <input id="task-due-date" name="dueDate" type="date" required>
+        </div>
+      </div>
+
+      <div class="actions-inline actions-stretch">
+        <button class="button button-primary" type="submit">Salva task</button>
+        <button class="button button-secondary" type="button" id="cancel-form">Annulla</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="detail-overlay" class="overlay" hidden></div>
+  <section id="detail-dialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="detail-title" aria-describedby="detail-content" aria-hidden="true" hidden>
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Dettaglio task</p>
+        <h2 id="detail-title">Dettaglio</h2>
+      </div>
+      <button id="close-detail" class="icon-button" type="button" aria-label="Chiudi il dettaglio task">×</button>
+    </div>
+    <div id="detail-content" class="task-detail"></div>
+  </section>
+
+
+  <div id="confirm-overlay" class="overlay" hidden></div>
+  <section id="confirm-dialog" class="dialog dialog-compact" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message" aria-hidden="true" hidden>
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Conferma azione</p>
+        <h2 id="confirm-title">Conferma</h2>
+      </div>
+      <button id="close-confirm" class="icon-button" type="button" aria-label="Chiudi la finestra di conferma">×</button>
+    </div>
+    <div class="task-detail">
+      <p id="confirm-message"></p>
+    </div>
+    <div class="actions-inline">
+      <button id="confirm-cancel" class="button button-secondary" type="button">Annulla</button>
+      <button id="confirm-accept" class="button button-danger" type="button">Conferma</button>
+    </div>
+  </section>
+
+  <div id="feedback-overlay" class="overlay" hidden></div>
+  <section id="feedback-dialog" class="dialog dialog-compact" role="alertdialog" aria-modal="true" aria-labelledby="feedback-title" aria-describedby="feedback-message" aria-hidden="true" hidden>
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Messaggio</p>
+        <h2 id="feedback-title">Operazione completata</h2>
+      </div>
+      <button id="close-feedback" class="icon-button" type="button" aria-label="Chiudi il messaggio">×</button>
+    </div>
+    <div class="task-detail">
+      <p id="feedback-message"></p>
+    </div>
+    <div class="actions-inline">
+      <button id="feedback-accept" class="button button-primary" type="button">OK</button>
+    </div>
+  </section>
+
+  <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <template id="task-row-template">
+    <tr>
+      <th scope="row" class="task-row-title"></th>
+      <td class="task-row-status"></td>
+      <td class="task-row-priority"></td>
+      <td class="task-row-assignee"></td>
+      <td class="task-row-due-date"></td>
+      <td>
+        <div class="row-actions">
+          <button class="button button-secondary button-small action-view" type="button">Dettaglio</button>
+          <button class="button button-secondary button-small action-edit" type="button">Modifica</button>
+          <button class="button button-secondary button-small action-toggle" type="button"></button>
+          <button class="button button-danger button-small action-delete" type="button">Elimina</button>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
