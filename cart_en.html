@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopFast - Demo Store</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --primary: #1a73e8;
+      --danger: #c62828;
+      --success: #2e7d32;
+      --border: #d9d9d9;
+      --dark: #111;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .cart-trigger {
+      background: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .page-shell {
+      max-width: 1240px;
+      margin: 32px auto;
+      padding: 0 20px 40px;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 440px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      background: #ddd;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .muted { color: var(--muted); }
+    .tiny { font-size: 0.85rem; color: var(--muted); }
+
+    .variant-list {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .variant {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      background: white;
+    }
+
+    .variant.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .qty-box {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .qty-btn, .qty-value {
+      padding: 10px 14px;
+      background: white;
+    }
+
+    .qty-btn {
+      cursor: pointer;
+      border-right: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      min-width: 42px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .add-cart {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .message {
+      margin-top: 16px;
+      padding: 12px;
+      background: #e8f5e9;
+      color: var(--success);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .coupon-box, .shipping-box, .promo-box {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .coupon-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #bcbcbc;
+      border-radius: 8px;
+    }
+
+    .apply-btn,
+    .secondary-btn {
+      padding: 12px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #222;
+      color: white;
+      cursor: pointer;
+    }
+
+    .coupon-error,
+    .shipping-error,
+    .checkout-error {
+      color: var(--danger);
+      font-size: 0.95rem;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .catalog {
+      margin-top: 20px;
+    }
+
+    .catalog h2 {
+      margin-bottom: 14px;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .product-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .product-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .product-card p {
+      margin: 0 0 8px;
+    }
+
+    .card-link,
+    .card-add {
+      display: inline-block;
+      margin-top: 8px;
+      margin-right: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #f1f3f4;
+    }
+
+    .card-add {
+      background: var(--primary);
+      color: white;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 30;
+    }
+
+    .overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 720px;
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      position: relative;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .checkout {
+      margin-top: 20px;
+      width: 100%;
+      background: #0d47a1;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .checkout-section {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .payment-options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .payment-option {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .payment-option.selected {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .order-note {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fff8e1;
+      color: #7a5b00;
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .catalog-grid,
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">ShopFast</div>
+    <div class="cart-trigger" id="cartTrigger">Cart (<span id="cartCount">0</span>)</div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero-layout">
+      <section class="panel">
+        <img
+          class="product-image"
+          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80"
+          alt=""
+        />
+      </section>
+
+      <section class="panel">
+        <div class="tiny">New arrivals</div>
+        <h1>RunPro X Sneakers</h1>
+        <p class="muted">Lightweight running shoes designed for everyday comfort and training.</p>
+        <div class="price" id="productPrice">89.00 €</div>
+
+        <h2>Size</h2>
+        <div class="variant-list" id="variantList">
+          <div class="variant selected" data-size="39">39</div>
+          <div class="variant" data-size="40">40</div>
+          <div class="variant" data-size="41">41</div>
+          <div class="variant" data-size="42">42</div>
+          <div class="variant" data-size="43">43</div>
+        </div>
+
+        <div class="qty-row">
+          <div>Qty</div>
+          <div class="qty-box">
+            <div class="qty-btn" id="decreaseQty">-</div>
+            <div class="qty-value" id="qtyValue">1</div>
+            <div class="qty-btn" id="increaseQty">+</div>
+          </div>
+        </div>
+
+        <button class="add-cart" id="addToCart">Add to cart</button>
+
+        <div class="message" id="feedbackMessage">
+          Product added to cart.
+        </div>
+
+        <div class="coupon-box">
+          <h2>Promo code</h2>
+          <div class="coupon-row">
+            <input type="text" id="couponInput" placeholder="Enter promo code" />
+            <button class="apply-btn" id="applyCoupon">Apply</button>
+          </div>
+          <div class="coupon-error" id="couponError">Code not valid</div>
+        </div>
+
+        <div class="shipping-box">
+          <h2>Shipping estimate</h2>
+          <div class="coupon-row">
+            <input type="text" id="shippingInput" placeholder="Enter country" />
+            <button class="secondary-btn" id="checkShipping">Check</button>
+          </div>
+          <div class="shipping-error" id="shippingError">Shipping not available for this area</div>
+        </div>
+      </section>
+    </section>
+
+    <section class="catalog panel">
+      <h2>You may also like</h2>
+      <div class="catalog-grid" id="catalogGrid">
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900&q=80" alt="" />
+          <h3>Urban Lite Sneakers</h3>
+          <p class="muted">Minimal everyday sneakers</p>
+          <p><strong>59.00 €</strong></p>
+          <span class="card-link">View details</span>
+          <span class="card-add" data-name="Urban Lite Sneakers" data-price="59.00 €">Quick add</span>
+        </article>
+
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=80" alt="" />
+          <h3>Trail Motion Shoes</h3>
+          <p class="muted">Outdoor grip and support</p>
+          <p><strong>99.00 €</strong></p>
+          <span class="card-link">View details</span>
+          <span class="card-add" data-name="Trail Motion Shoes" data-price="99.00 €">Quick add</span>
+        </article>
+
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=900&q=80" alt="" />
+          <h3>Everyday Backpack</h3>
+          <p class="muted">Water resistant city backpack</p>
+          <p><strong>45.00 €</strong></p>
+          <span class="card-link">View details</span>
+          <span class="card-add" data-name="Everyday Backpack" data-price="45.00 €">Quick add</span>
+        </article>
+
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=80" alt="" />
+          <h3>Performance Hoodie</h3>
+          <p class="muted">Soft fabric for everyday training</p>
+          <p><strong>39.00 €</strong></p>
+          <span class="card-link">View details</span>
+          <span class="card-add" data-name="Performance Hoodie" data-price="39.00 €">Quick add</span>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="cartOverlay">
+    <div class="modal" id="cartModal">
+      <button class="close" id="closeModal">×</button>
+      <h2>Your cart</h2>
+      <div id="cartItems"></div>
+
+      <div class="checkout-section">
+        <div class="summary-row"><span>Subtotal</span><strong id="subtotalValue">0.00 €</strong></div>
+        <div class="summary-row"><span>Shipping</span><span id="shippingValue">7.00 €</span></div>
+        <div class="summary-row"><span>Discount</span><span id="discountValue">0.00 €</span></div>
+        <div class="summary-row"><span><strong>Total</strong></span><strong id="totalValue">7.00 €</strong></div>
+        <p class="tiny">Free shipping for orders over 100.00 €</p>
+      </div>
+
+      <div class="checkout-section">
+        <h3>Checkout</h3>
+        <div class="checkout-grid">
+          <input type="text" id="fullName" placeholder="Full name" />
+          <input type="email" id="emailAddress" placeholder="Email address" />
+          <input type="text" id="streetAddress" placeholder="Street address" />
+          <input type="text" id="cityName" placeholder="City" />
+        </div>
+
+        <div style="margin-top:12px;">Payment method</div>
+        <div class="payment-options" id="paymentOptions">
+          <div class="payment-option selected" data-method="Card">Card</div>
+          <div class="payment-option" data-method="PayPal">PayPal</div>
+          <div class="payment-option" data-method="Bank transfer">Bank transfer</div>
+        </div>
+
+        <div class="checkout-error" id="checkoutError">Please complete all fields before placing the order</div>
+        <div class="order-note" id="orderNote">Order placed successfully. Confirmation email sent.</div>
+        <button class="checkout" id="checkoutBtn">Place order</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cartTrigger = document.getElementById('cartTrigger');
+    const cartCount = document.getElementById('cartCount');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartModal = document.getElementById('cartModal');
+    const closeModal = document.getElementById('closeModal');
+    const cartItems = document.getElementById('cartItems');
+    const addToCart = document.getElementById('addToCart');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const qtyValue = document.getElementById('qtyValue');
+    const increaseQty = document.getElementById('increaseQty');
+    const decreaseQty = document.getElementById('decreaseQty');
+    const variants = document.querySelectorAll('.variant');
+    const couponInput = document.getElementById('couponInput');
+    const applyCoupon = document.getElementById('applyCoupon');
+    const couponError = document.getElementById('couponError');
+    const checkShipping = document.getElementById('checkShipping');
+    const shippingInput = document.getElementById('shippingInput');
+    const shippingError = document.getElementById('shippingError');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const subtotalValue = document.getElementById('subtotalValue');
+    const shippingValue = document.getElementById('shippingValue');
+    const discountValue = document.getElementById('discountValue');
+    const totalValue = document.getElementById('totalValue');
+    const fullName = document.getElementById('fullName');
+    const emailAddress = document.getElementById('emailAddress');
+    const streetAddress = document.getElementById('streetAddress');
+    const cityName = document.getElementById('cityName');
+    const checkoutError = document.getElementById('checkoutError');
+    const orderNote = document.getElementById('orderNote');
+    const paymentOptions = document.querySelectorAll('.payment-option');
+
+    let qty = 1;
+    let selectedSize = '39';
+    let selectedPayment = 'Card';
+    let cart = [];
+    let discount = 0;
+    let shippingCost = 7;
+
+    function parsePrice(price) {
+      return Number(price.replace('€', '').replace(/\s/g, '').replace(',', '.'));
+    }
+
+    function formatPrice(value) {
+      return value.toFixed(2) + ' €';
+    }
+
+    function updateSummary() {
+      const subtotal = cart.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
+      const appliedShipping = subtotal >= 100 && subtotal > 0 ? 0 : shippingCost;
+      const total = Math.max(0, subtotal + appliedShipping - discount);
+
+      subtotalValue.textContent = formatPrice(subtotal);
+      shippingValue.textContent = formatPrice(appliedShipping);
+      discountValue.textContent = '-' + formatPrice(discount);
+      totalValue.textContent = formatPrice(total);
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p>Your cart is empty</p>';
+        updateSummary();
+        return;
+      }
+
+      cart.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+        row.innerHTML = `
+          <div>
+            <strong>${item.name}</strong><br>
+            <span class="tiny">Size ${item.size} - Quantity ${item.qty}</span>
+          </div>
+          <div>
+            <div>${formatPrice(item.unitPrice * item.qty)}</div>
+            <div class="tiny remove-item" data-index="${index}" style="margin-top:8px; cursor:pointer; color:#c62828;">Remove</div>
+          </div>
+        `;
+        cartItems.appendChild(row);
+      });
+
+      document.querySelectorAll('.remove-item').forEach(el => {
+        el.addEventListener('click', function () {
+          const index = Number(this.dataset.index);
+          cart.splice(index, 1);
+          cartCount.textContent = cart.length;
+          renderCart();
+        });
+      });
+
+      updateSummary();
+    }
+
+    function addItemToCart(name, size, qty, price) {
+      cart.push({
+        name,
+        size,
+        qty,
+        unitPrice: price
+      });
+
+      cartCount.textContent = cart.length;
+      feedbackMessage.style.display = 'block';
+
+      setTimeout(() => {
+        feedbackMessage.style.display = 'none';
+      }, 2500);
+    }
+
+    cartTrigger.addEventListener('click', () => {
+      cartOverlay.classList.add('open');
+      renderCart();
+    });
+
+    closeModal.addEventListener('click', () => {
+      cartOverlay.classList.remove('open');
+    });
+
+    cartOverlay.addEventListener('click', (event) => {
+      if (event.target === cartOverlay) {
+        cartOverlay.classList.remove('open');
+      }
+    });
+
+    variants.forEach(variant => {
+      variant.addEventListener('click', () => {
+        variants.forEach(v => v.classList.remove('selected'));
+        variant.classList.add('selected');
+        selectedSize = variant.dataset.size;
+      });
+    });
+
+    increaseQty.addEventListener('click', () => {
+      qty += 1;
+      qtyValue.textContent = qty;
+    });
+
+    decreaseQty.addEventListener('click', () => {
+      if (qty > 1) {
+        qty -= 1;
+        qtyValue.textContent = qty;
+      }
+    });
+
+    addToCart.addEventListener('click', () => {
+      addItemToCart('RunPro X Sneakers', selectedSize, qty, 89);
+    });
+
+    document.querySelectorAll('.card-add').forEach(item => {
+      item.addEventListener('click', function () {
+        const name = this.dataset.name;
+        const price = parsePrice(this.dataset.price);
+        addItemToCart(name, 'One size', 1, price);
+      });
+    });
+
+    applyCoupon.addEventListener('click', () => {
+      if (couponInput.value.trim().toUpperCase() !== 'ACCESS20') {
+        discount = 0;
+        couponError.style.display = 'block';
+        couponInput.style.borderColor = '#c62828';
+      } else {
+        discount = 20;
+        couponError.style.display = 'none';
+        couponInput.style.borderColor = '#2e7d32';
+        alert('Promo code applied successfully');
+      }
+      updateSummary();
+    });
+
+    checkShipping.addEventListener('click', () => {
+      const country = shippingInput.value.trim().toLowerCase();
+      if (!country || (country !== 'italy' && country !== 'france' && country !== 'germany' && country !== 'spain')) {
+        shippingError.style.display = 'block';
+        shippingInput.style.borderColor = '#c62828';
+      } else {
+        shippingError.style.display = 'none';
+        shippingInput.style.borderColor = '#2e7d32';
+        alert('Shipping available in 3-5 business days');
+      }
+    });
+
+    paymentOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        paymentOptions.forEach(p => p.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedPayment = option.dataset.method;
+      });
+    });
+
+    checkoutBtn.addEventListener('click', () => {
+      if (
+        !fullName.value.trim() ||
+        !emailAddress.value.trim() ||
+        !streetAddress.value.trim() ||
+        !cityName.value.trim() ||
+        cart.length === 0
+      ) {
+        checkoutError.style.display = 'block';
+        orderNote.style.display = 'none';
+        return;
+      }
+
+      checkoutError.style.display = 'none';
+      orderNote.style.display = 'block';
+      alert('Order placed with ' + selectedPayment);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        cartOverlay.classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>
