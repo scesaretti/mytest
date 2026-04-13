@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopFast - Demo Store</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --primary: #1a73e8;
+      --danger: #c62828;
+      --success: #2e7d32;
+      --border: #d9d9d9;
+      --dark: #111;
+      --warning-bg: #fff8e1;
+      --warning-text: #7a5b00;
+      --focus: #ffbf47;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cart-trigger,
+    .add-cart,
+    .apply-btn,
+    .secondary-btn,
+    .checkout,
+    .close,
+    .card-link,
+    .card-add,
+    .qty-btn,
+    .remove-item {
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .cart-trigger {
+      background: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+
+    .page-shell {
+      max-width: 1240px;
+      margin: 32px auto;
+      padding: 0 20px 40px;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 440px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      background: #ddd;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .muted { color: var(--muted); }
+    .tiny { font-size: 0.85rem; color: var(--muted); }
+
+    .variant-list,
+    .payment-options {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .variant,
+    .payment-option {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: white;
+    }
+
+    .variant[aria-checked="true"],
+    .payment-option[aria-checked="true"] {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .qty-box {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .qty-btn,
+    .qty-value {
+      padding: 10px 14px;
+      background: white;
+      border: 0;
+    }
+
+    .qty-btn {
+      min-width: 42px;
+      text-align: center;
+    }
+
+    .qty-value {
+      min-width: 56px;
+      text-align: center;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .add-cart {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 8px;
+    }
+
+    .message,
+    .coupon-success,
+    .shipping-success,
+    .order-note {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .message,
+    .coupon-success,
+    .shipping-success {
+      background: #e8f5e9;
+      color: var(--success);
+    }
+
+    .coupon-box,
+    .shipping-box {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .coupon-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: flex-start;
+    }
+
+    .field-group {
+      width: 100%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #bcbcbc;
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    .apply-btn,
+    .secondary-btn,
+    .checkout,
+    .card-link,
+    .card-add,
+    .remove-item,
+    .close {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #222;
+      color: white;
+    }
+
+    .card-link {
+      background: #f1f3f4;
+      color: #111;
+    }
+
+    .card-add {
+      background: var(--primary);
+      color: white;
+    }
+
+    .coupon-error,
+    .shipping-error,
+    .checkout-error,
+    .field-error {
+      color: var(--danger);
+      font-size: 0.95rem;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .catalog {
+      margin-top: 20px;
+    }
+
+    .catalog h2 {
+      margin-bottom: 14px;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .product-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .product-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .product-card p {
+      margin: 0 0 8px;
+    }
+
+    .product-card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 30;
+    }
+
+    .overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 720px;
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      position: relative;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      color: #111;
+      padding: 8px 10px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .remove-item {
+      background: transparent;
+      color: var(--danger);
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .checkout {
+      margin-top: 20px;
+      width: 100%;
+      background: #0d47a1;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .checkout-section {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .payment-option {
+      cursor: pointer;
+    }
+
+    .order-note {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .input-invalid {
+      border-color: var(--danger) !important;
+    }
+
+    .page-dimmed {
+      overflow: hidden;
+    }
+
+    @media (max-width: 980px) {
+      .catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .catalog-grid,
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .coupon-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#mainContent">Skip to main content</a>
+
+  <header>
+    <div class="brand">ShopFast</div>
+    <div class="header-actions">
+      <button
+        class="cart-trigger"
+        id="cartTrigger"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="cartOverlay"
+        aria-expanded="false"
+      >
+        Cart (<span id="cartCount">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <div id="liveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <main class="page-shell" id="mainContent">
+    <section class="hero-layout">
+      <section class="panel">
+        <img
+          class="product-image"
+          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80"
+          alt="Red RunPro X sneakers displayed on a neutral background"
+        />
+      </section>
+
+      <section class="panel">
+        <div class="tiny">New arrivals</div>
+        <h1>RunPro X Sneakers</h1>
+        <p class="muted">Lightweight running shoes designed for everyday comfort and training.</p>
+        <div class="price" id="productPrice">89.00 €</div>
+
+        <fieldset>
+          <legend><strong>Size</strong></legend>
+          <div class="variant-list" id="variantList" role="radiogroup" aria-label="Size options">
+            <button class="variant" type="button" role="radio" aria-checked="true" data-size="39">39</button>
+            <button class="variant" type="button" role="radio" aria-checked="false" data-size="40">40</button>
+            <button class="variant" type="button" role="radio" aria-checked="false" data-size="41">41</button>
+            <button class="variant" type="button" role="radio" aria-checked="false" data-size="42">42</button>
+            <button class="variant" type="button" role="radio" aria-checked="false" data-size="43">43</button>
+          </div>
+        </fieldset>
+
+        <div class="qty-row">
+          <div id="qtyLabel"><strong>Qty</strong></div>
+          <div class="qty-box" role="group" aria-labelledby="qtyLabel">
+            <button class="qty-btn" id="decreaseQty" type="button" aria-label="Decrease quantity">-</button>
+            <div class="qty-value" id="qtyValue" aria-live="polite" aria-atomic="true">1</div>
+            <button class="qty-btn" id="increaseQty" type="button" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <button class="add-cart" id="addToCart" type="button">Add to cart</button>
+
+        <div class="message" id="feedbackMessage" role="status" aria-live="polite" aria-atomic="true">
+          Product added to cart.
+        </div>
+
+        <div class="coupon-box">
+          <h2>Promo code</h2>
+          <div class="coupon-row">
+            <div class="field-group">
+              <label for="couponInput">Promo code</label>
+              <input type="text" id="couponInput" aria-describedby="couponHelp couponError couponSuccess" />
+              <div class="tiny" id="couponHelp">Use ACCESS20 to apply a 20.00 € discount.</div>
+              <div class="coupon-error" id="couponError" role="alert">Code not valid</div>
+              <div class="coupon-success" id="couponSuccess" role="status" aria-live="polite">Promo code applied successfully</div>
+            </div>
+            <button class="apply-btn" id="applyCoupon" type="button">Apply</button>
+          </div>
+        </div>
+
+        <div class="shipping-box">
+          <h2>Shipping estimate</h2>
+          <div class="coupon-row">
+            <div class="field-group">
+              <label for="shippingInput">Country</label>
+              <input type="text" id="shippingInput" aria-describedby="shippingHelp shippingError shippingSuccess" />
+              <div class="tiny" id="shippingHelp">Available for Italy, France, Germany and Spain.</div>
+              <div class="shipping-error" id="shippingError" role="alert">Shipping not available for this area</div>
+              <div class="shipping-success" id="shippingSuccess" role="status" aria-live="polite">Shipping available in 3-5 business days</div>
+            </div>
+            <button class="secondary-btn" id="checkShipping" type="button">Check</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="catalog panel" aria-labelledby="catalogTitle">
+      <h2 id="catalogTitle">You may also like</h2>
+      <div class="catalog-grid" id="catalogGrid">
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900&q=80" alt="Urban Lite Sneakers in white and beige" />
+          <h3>Urban Lite Sneakers</h3>
+          <p class="muted">Minimal everyday sneakers</p>
+          <p><strong>59.00 €</strong></p>
+          <div class="product-card-actions">
+            <button class="card-link" type="button" aria-label="View details for Urban Lite Sneakers">View details</button>
+            <button class="card-add" type="button" data-name="Urban Lite Sneakers" data-price="59.00 €">Quick add</button>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=80" alt="Trail Motion Shoes in dark color" />
+          <h3>Trail Motion Shoes</h3>
+          <p class="muted">Outdoor grip and support</p>
+          <p><strong>99.00 €</strong></p>
+          <div class="product-card-actions">
+            <button class="card-link" type="button" aria-label="View details for Trail Motion Shoes">View details</button>
+            <button class="card-add" type="button" data-name="Trail Motion Shoes" data-price="99.00 €">Quick add</button>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=900&q=80" alt="Everyday Backpack in black fabric" />
+          <h3>Everyday Backpack</h3>
+          <p class="muted">Water resistant city backpack</p>
+          <p><strong>45.00 €</strong></p>
+          <div class="product-card-actions">
+            <button class="card-link" type="button" aria-label="View details for Everyday Backpack">View details</button>
+            <button class="card-add" type="button" data-name="Everyday Backpack" data-price="45.00 €">Quick add</button>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=80" alt="Performance Hoodie in light gray" />
+          <h3>Performance Hoodie</h3>
+          <p class="muted">Soft fabric for everyday training</p>
+          <p><strong>39.00 €</strong></p>
+          <div class="product-card-actions">
+            <button class="card-link" type="button" aria-label="View details for Performance Hoodie">View details</button>
+            <button class="card-add" type="button" data-name="Performance Hoodie" data-price="39.00 €">Quick add</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="cartOverlay" aria-hidden="true">
+    <div
+      class="modal"
+      id="cartModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cartDialogTitle"
+      aria-describedby="cartDialogDescription"
+    >
+      <button class="close" id="closeModal" type="button" aria-label="Close cart dialog">×</button>
+      <h2 id="cartDialogTitle">Your cart</h2>
+      <p id="cartDialogDescription" class="tiny">Review your cart items and complete the checkout form.</p>
+      <div id="cartItems"></div>
+
+      <div class="checkout-section">
+        <div class="summary-row"><span>Subtotal</span><strong id="subtotalValue">0.00 €</strong></div>
+        <div class="summary-row"><span>Shipping</span><span id="shippingValue">7.00 €</span></div>
+        <div class="summary-row"><span>Discount</span><span id="discountValue">-0.00 €</span></div>
+        <div class="summary-row"><span><strong>Total</strong></span><strong id="totalValue">7.00 €</strong></div>
+        <p class="tiny">Free shipping for orders over 100.00 €</p>
+      </div>
+
+      <div class="checkout-section">
+        <h3>Checkout</h3>
+        <div class="checkout-grid">
+          <div>
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" autocomplete="name" aria-describedby="fullNameError" />
+            <div class="field-error" id="fullNameError">Enter your full name</div>
+          </div>
+          <div>
+            <label for="emailAddress">Email address</label>
+            <input type="email" id="emailAddress" autocomplete="email" aria-describedby="emailAddressError" />
+            <div class="field-error" id="emailAddressError">Enter a valid email address</div>
+          </div>
+          <div>
+            <label for="streetAddress">Street address</label>
+            <input type="text" id="streetAddress" autocomplete="street-address" aria-describedby="streetAddressError" />
+            <div class="field-error" id="streetAddressError">Enter your street address</div>
+          </div>
+          <div>
+            <label for="cityName">City</label>
+            <input type="text" id="cityName" autocomplete="address-level2" aria-describedby="cityNameError" />
+            <div class="field-error" id="cityNameError">Enter your city</div>
+          </div>
+        </div>
+
+        <fieldset>
+          <legend><strong>Payment method</strong></legend>
+          <div class="payment-options" id="paymentOptions" role="radiogroup" aria-label="Payment method">
+            <button class="payment-option" type="button" role="radio" aria-checked="true" data-method="Card">Card</button>
+            <button class="payment-option" type="button" role="radio" aria-checked="false" data-method="PayPal">PayPal</button>
+            <button class="payment-option" type="button" role="radio" aria-checked="false" data-method="Bank transfer">Bank transfer</button>
+          </div>
+        </fieldset>
+
+        <div class="checkout-error" id="checkoutError" role="alert">Please correct the highlighted fields before placing the order</div>
+        <div class="order-note" id="orderNote" role="status" aria-live="polite">Order placed successfully. Confirmation email sent.</div>
+        <button class="checkout" id="checkoutBtn" type="button">Place order</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cartTrigger = document.getElementById('cartTrigger');
+    const cartCount = document.getElementById('cartCount');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartModal = document.getElementById('cartModal');
+    const closeModal = document.getElementById('closeModal');
+    const cartItems = document.getElementById('cartItems');
+    const addToCart = document.getElementById('addToCart');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const qtyValue = document.getElementById('qtyValue');
+    const increaseQty = document.getElementById('increaseQty');
+    const decreaseQty = document.getElementById('decreaseQty');
+    const variants = document.querySelectorAll('.variant');
+    const couponInput = document.getElementById('couponInput');
+    const applyCoupon = document.getElementById('applyCoupon');
+    const couponError = document.getElementById('couponError');
+    const couponSuccess = document.getElementById('couponSuccess');
+    const checkShipping = document.getElementById('checkShipping');
+    const shippingInput = document.getElementById('shippingInput');
+    const shippingError = document.getElementById('shippingError');
+    const shippingSuccess = document.getElementById('shippingSuccess');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const subtotalValue = document.getElementById('subtotalValue');
+    const shippingValue = document.getElementById('shippingValue');
+    const discountValue = document.getElementById('discountValue');
+    const totalValue = document.getElementById('totalValue');
+    const fullName = document.getElementById('fullName');
+    const emailAddress = document.getElementById('emailAddress');
+    const streetAddress = document.getElementById('streetAddress');
+    const cityName = document.getElementById('cityName');
+    const checkoutError = document.getElementById('checkoutError');
+    const orderNote = document.getElementById('orderNote');
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const liveRegion = document.getElementById('liveRegion');
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'input:not([disabled])',
+      '[href]',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+
+    let qty = 1;
+    let selectedSize = '39';
+    let selectedPayment = 'Card';
+    let cart = [];
+    let discount = 0;
+    let shippingCost = 7;
+    let lastFocusedElement = null;
+
+    function announce(message) {
+      liveRegion.textContent = '';
+      window.setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 10);
+    }
+
+    function parsePrice(price) {
+      return Number(price.replace('€', '').replace(/\s/g, '').replace(',', '.'));
+    }
+
+    function formatPrice(value) {
+      return value.toFixed(2) + ' €';
+    }
+
+    function updateSummary() {
+      const subtotal = cart.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
+      const appliedShipping = subtotal >= 100 && subtotal > 0 ? 0 : shippingCost;
+      const total = Math.max(0, subtotal + appliedShipping - discount);
+
+      subtotalValue.textContent = formatPrice(subtotal);
+      shippingValue.textContent = formatPrice(appliedShipping);
+      discountValue.textContent = '-' + formatPrice(discount);
+      totalValue.textContent = formatPrice(total);
+    }
+
+    function setRadioSelection(items, selectedItem, stateAttribute, valueAttribute) {
+      items.forEach(item => {
+        const checked = item === selectedItem;
+        item.setAttribute(stateAttribute, String(checked));
+        item.tabIndex = checked ? 0 : -1;
+      });
+      return selectedItem.dataset[valueAttribute];
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p>Your cart is empty</p>';
+        updateSummary();
+        return;
+      }
+
+      cart.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+
+        const itemInfo = document.createElement('div');
+        itemInfo.innerHTML = `
+          <strong>${item.name}</strong><br>
+          <span class="tiny">Size ${item.size} - Quantity ${item.qty}</span>
+        `;
+
+        const itemActions = document.createElement('div');
+        const price = document.createElement('div');
+        price.textContent = formatPrice(item.unitPrice * item.qty);
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'tiny remove-item';
+        removeButton.dataset.index = String(index);
+        removeButton.setAttribute('aria-label', `Remove ${item.name} from cart`);
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => {
+          cart.splice(index, 1);
+          cartCount.textContent = String(cart.length);
+          renderCart();
+          announce(`${item.name} removed from cart`);
+        });
+
+        itemActions.appendChild(price);
+        itemActions.appendChild(removeButton);
+        row.appendChild(itemInfo);
+        row.appendChild(itemActions);
+        cartItems.appendChild(row);
+      });
+
+      updateSummary();
+    }
+
+    function showStatus(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
+    }
+
+    function hideStatus(element) {
+      element.style.display = 'none';
+    }
+
+    function clearInputState(input, errorElement, successElement) {
+      input.classList.remove('input-invalid');
+      input.removeAttribute('aria-invalid');
+      if (errorElement) hideStatus(errorElement);
+      if (successElement) hideStatus(successElement);
+    }
+
+    function setInputError(input, errorElement, message) {
+      if (message) {
+        errorElement.textContent = message;
+      }
+      input.classList.add('input-invalid');
+      input.setAttribute('aria-invalid', 'true');
+      showStatus(errorElement, errorElement.textContent);
+    }
+
+    function setInputSuccess(input, successElement, message) {
+      if (message) {
+        successElement.textContent = message;
+      }
+      input.classList.remove('input-invalid');
+      input.removeAttribute('aria-invalid');
+      showStatus(successElement, successElement.textContent);
+    }
+
+    function addItemToCart(name, size, quantity, price) {
+      cart.push({
+        name,
+        size,
+        qty: quantity,
+        unitPrice: price
+      });
+
+      cartCount.textContent = String(cart.length);
+      feedbackMessage.style.display = 'block';
+      feedbackMessage.textContent = `${name} added to cart.`;
+      announce(`${name} added to cart. Cart now contains ${cart.length} items.`);
+      updateSummary();
+
+      window.setTimeout(() => {
+        feedbackMessage.style.display = 'none';
+      }, 2500);
+    }
+
+    function openModal() {
+      lastFocusedElement = document.activeElement;
+      cartOverlay.classList.add('open');
+      cartOverlay.setAttribute('aria-hidden', 'false');
+      cartTrigger.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('page-dimmed');
+      renderCart();
+      closeModal.focus();
+    }
+
+    function closeCartModal() {
+      cartOverlay.classList.remove('open');
+      cartOverlay.setAttribute('aria-hidden', 'true');
+      cartTrigger.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('page-dimmed');
+      if (lastFocusedElement) {
+        lastFocusedElement.focus();
+      }
+    }
+
+    function trapFocus(event) {
+      if (!cartOverlay.classList.contains('open') || event.key !== 'Tab') {
+        return;
+      }
+
+      const focusableElements = cartModal.querySelectorAll(focusableSelectors);
+      if (!focusableElements.length) {
+        return;
+      }
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    cartTrigger.addEventListener('click', openModal);
+    closeModal.addEventListener('click', closeCartModal);
+
+    cartOverlay.addEventListener('click', (event) => {
+      if (event.target === cartOverlay) {
+        closeCartModal();
+      }
+    });
+
+    variants.forEach(variant => {
+      variant.tabIndex = variant.getAttribute('aria-checked') === 'true' ? 0 : -1;
+      variant.addEventListener('click', () => {
+        selectedSize = setRadioSelection(variants, variant, 'aria-checked', 'size');
+        announce(`Size ${selectedSize} selected`);
+      });
+      variant.addEventListener('keydown', (event) => {
+        const items = Array.from(variants);
+        let index = items.indexOf(variant);
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          index = (index + 1) % items.length;
+          items[index].click();
+          items[index].focus();
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          index = (index - 1 + items.length) % items.length;
+          items[index].click();
+          items[index].focus();
+        }
+      });
+    });
+
+    increaseQty.addEventListener('click', () => {
+      qty += 1;
+      qtyValue.textContent = String(qty);
+      announce(`Quantity increased to ${qty}`);
+    });
+
+    decreaseQty.addEventListener('click', () => {
+      if (qty > 1) {
+        qty -= 1;
+        qtyValue.textContent = String(qty);
+        announce(`Quantity decreased to ${qty}`);
+      }
+    });
+
+    addToCart.addEventListener('click', () => {
+      addItemToCart('RunPro X Sneakers', selectedSize, qty, 89);
+    });
+
+    document.querySelectorAll('.card-add').forEach(item => {
+      item.addEventListener('click', function () {
+        const name = this.dataset.name;
+        const price = parsePrice(this.dataset.price);
+        addItemToCart(name, 'One size', 1, price);
+      });
+    });
+
+    document.querySelectorAll('.card-link').forEach(button => {
+      button.addEventListener('click', () => {
+        announce('Product details are not available in this demo');
+      });
+    });
+
+    applyCoupon.addEventListener('click', () => {
+      clearInputState(couponInput, couponError, couponSuccess);
+      if (couponInput.value.trim().toUpperCase() !== 'ACCESS20') {
+        discount = 0;
+        setInputError(couponInput, couponError, 'Code not valid');
+        updateSummary();
+        couponInput.focus();
+        return;
+      }
+
+      discount = 20;
+      setInputSuccess(couponInput, couponSuccess, 'Promo code applied successfully');
+      updateSummary();
+      announce('Promo code applied successfully. Discount of 20.00 euro added.');
+    });
+
+    checkShipping.addEventListener('click', () => {
+      const country = shippingInput.value.trim().toLowerCase();
+      clearInputState(shippingInput, shippingError, shippingSuccess);
+
+      if (!country || !['italy', 'france', 'germany', 'spain'].includes(country)) {
+        setInputError(shippingInput, shippingError, 'Shipping not available for this area');
+        shippingInput.focus();
+        return;
+      }
+
+      setInputSuccess(shippingInput, shippingSuccess, 'Shipping available in 3-5 business days');
+      announce(`Shipping available for ${shippingInput.value.trim()}`);
+    });
+
+    paymentOptions.forEach(option => {
+      option.tabIndex = option.getAttribute('aria-checked') === 'true' ? 0 : -1;
+      option.addEventListener('click', () => {
+        selectedPayment = setRadioSelection(paymentOptions, option, 'aria-checked', 'method');
+        announce(`${selectedPayment} selected as payment method`);
+      });
+      option.addEventListener('keydown', (event) => {
+        const items = Array.from(paymentOptions);
+        let index = items.indexOf(option);
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          index = (index + 1) % items.length;
+          items[index].click();
+          items[index].focus();
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          index = (index - 1 + items.length) % items.length;
+          items[index].click();
+          items[index].focus();
+        }
+      });
+    });
+
+    function validateEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function validateCheckout() {
+      let isValid = true;
+      checkoutError.style.display = 'none';
+      hideStatus(orderNote);
+
+      const fields = [
+        {
+          input: fullName,
+          error: document.getElementById('fullNameError'),
+          validate: (value) => value.trim().length > 0,
+          message: 'Enter your full name'
+        },
+        {
+          input: emailAddress,
+          error: document.getElementById('emailAddressError'),
+          validate: (value) => validateEmail(value.trim()),
+          message: 'Enter a valid email address'
+        },
+        {
+          input: streetAddress,
+          error: document.getElementById('streetAddressError'),
+          validate: (value) => value.trim().length > 0,
+          message: 'Enter your street address'
+        },
+        {
+          input: cityName,
+          error: document.getElementById('cityNameError'),
+          validate: (value) => value.trim().length > 0,
+          message: 'Enter your city'
+        }
+      ];
+
+      fields.forEach(({ input, error, validate, message }) => {
+        hideStatus(error);
+        input.classList.remove('input-invalid');
+        input.removeAttribute('aria-invalid');
+
+        if (!validate(input.value)) {
+          isValid = false;
+          setInputError(input, error, message);
+        }
+      });
+
+      if (cart.length === 0) {
+        isValid = false;
+      }
+
+      if (!isValid) {
+        checkoutError.style.display = 'block';
+        const firstInvalid = fields.find(({ input }) => input.getAttribute('aria-invalid') === 'true');
+        if (firstInvalid) {
+          firstInvalid.input.focus();
+        } else {
+          checkoutBtn.focus();
+        }
+        return false;
+      }
+
+      return true;
+    }
+
+    checkoutBtn.addEventListener('click', () => {
+      if (!validateCheckout()) {
+        return;
+      }
+
+      orderNote.style.display = 'block';
+      orderNote.textContent = 'Order placed successfully. Confirmation email sent.';
+      announce(`Order placed with ${selectedPayment}`);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && cartOverlay.classList.contains('open')) {
+        closeCartModal();
+      }
+      trapFocus(event);
+    });
+  </script>
+</body>
+</html>
